@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_BMI085
+	bool "BMI085 sensor example"
+	default n
+	depends on SENSORS_BMI085
+	---help---
+		Enable the 6 axis sensor example
+
+if EXAMPLES_BMI085
+
+config EXAMPLES_BMI085_PROGNAME
+	string "Program name"
+	default "test_bmi085"
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_BMI085_PRIORITY
+	int "bmi085 task priority"
+	default 100
+
+config EXAMPLES_BMI085_STACKSIZE
+	int "bmi085 stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
