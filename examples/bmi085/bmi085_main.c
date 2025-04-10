@@ -26,6 +26,7 @@
 #include <inttypes.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
 
@@ -43,23 +44,35 @@
 #define BMI085_DEVPATH   "/dev/bmi085"
 #define I2C_DRIVER_PATH  "/dev/i2c0"
 
-static int check_bmi085() {
+#define LOOP 1
 
-  /* Test bmi085 driver */
+/****************************************************************************
+* bmi085_main
+****************************************************************************/
+
+int main(int argc, FAR char *argv[])
+{
   int fd_bmi085;
+  int loop = LOOP;
   struct accel_gyro_st_s data;
   uint32_t prev;
+
+  /* Check input */
+  if (argc >= 2)
+    loop = atoi(argv[1]);
+
+  printf("Usage: test_bmi085 <number_of_samples>\n");
 
   fd_bmi085 = open(BMI085_DEVPATH, O_RDONLY);
   if (fd_bmi085 < 0)
     {
-      printf("Device %s open failure. %d\n", BMI085_DEVPATH, fd_bmi085);
+      printf("Device %s open failure. %d\n\n", BMI085_DEVPATH, fd_bmi085);
       return -1;
     }
 
-  /* start reading data */
+  /* Start reading data */
   prev = 0;
-  while(1) {
+  while(loop--) {
     int ret;
 
     ret = read(fd_bmi085, &data, sizeof(struct accel_gyro_st_s));
@@ -85,30 +98,7 @@ static int check_bmi085() {
     up_mdelay(50);
   }
 
-  /* end communication */
-  printf("Closing device... bye!\n");
   close(fd_bmi085);
-
-  return 0;
-}
-
-/****************************************************************************
-* bmi085_main
-****************************************************************************/
-
-int main(int argc, FAR char *argv[])
-{
-  struct accel_gyro_st_s data;
-  uint32_t prev;
-
-  printf("Hello BMI085!\n");
-
-  if (check_bmi085() == 0) {
-    printf("BMI085 communication successful!\n");
-  } else {
-    printf("BMI085 communication is faulty...\n");
-    return -1;
-  }
 
   return 0;
 }
