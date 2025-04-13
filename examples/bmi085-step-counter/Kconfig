@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_STEP_COUNTER_BMI085
+	bool "Step counter for bmi085"
+	default n
+	depends on SENSORS_BMI085
+	---help---
+		Enable the 6 axis sensor example
+
+if EXAMPLES_STEP_COUNTER_BMI085
+
+config EXAMPLES_STEP_COUNTER_BMI085_PROGNAME
+	string "Program name"
+	default "step_counter"
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_STEP_COUNTER_BMI085_PRIORITY
+	int "step counter task priority"
+	default 100
+
+config EXAMPLES_STEP_COUNTER_BMI085_STACKSIZE
+	int "step counter stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif
