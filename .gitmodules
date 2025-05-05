@@ -1,0 +1,3 @@
+[submodule "examples/bmi085-step-counter/C-Step-Counter"]
+	path = examples/bmi085-step-counter/C-Step-Counter
+	url = https://github.com/Ana-Mirza/C-Step-Counter.git
