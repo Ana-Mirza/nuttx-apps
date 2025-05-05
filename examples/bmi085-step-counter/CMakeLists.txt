@@ -29,6 +29,7 @@ if(CONFIG_EXAMPLES_STEP_COUNTER_BMI085)
     ${CSRC_DIR}/preProcessingStage.c
     ${CSRC_DIR}/ringbuffer.c
     ${CSRC_DIR}/scoringStage.c
+    ${CSRC_DIR}/motionDetectStage.c
     ${CSRC_DIR}/StepCountingAlgo.c
   )
 

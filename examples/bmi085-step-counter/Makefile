@@ -32,7 +32,7 @@ MODULE    = $(CONFIG_EXAMPLES_STEP_COUNTER_BMI085)
 VPATH += C-Step-Counter/src
 
 # Add the include path for header files
-CFLAGS += -IC-Step-Counter/include
+CFLAGS += -I C-Step-Counter/include
 
 CSRCS += detectionStage.c \
          filterStage.c \
@@ -40,6 +40,7 @@ CSRCS += detectionStage.c \
          preProcessingStage.c \
          ringbuffer.c \
          scoringStage.c \
+         motionDetectStage.c \
 		 StepCountingAlgo.c
 
 MAINSRC = bmi085-step-counter_main.c

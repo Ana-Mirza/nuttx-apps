@@ -2,16 +2,16 @@
  * Included Files
  ****************************************************************************/
 
- #include <nuttx/config.h>
- #include <inttypes.h>
- #include <fcntl.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <unistd.h>
- #include <math.h>
+#include <nuttx/config.h>
+#include <inttypes.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+//  #include <math.h>
  
- #include <nuttx/clock.h>
- #include <nuttx/signal.h>
+#include <nuttx/clock.h>
+#include <nuttx/signal.h>
 
 #include "StepCountingAlgo.h"
 #include <nuttx/sensors/bmi085.h>
@@ -64,6 +64,9 @@ int main(int argc, FAR char *argv[])
   int16_t accelVals[3];
   int16_t lastAccelSample[3];
 
+  /* Time registers */
+  uint32_t prev_time_counter = 0;
+
   /* Initialize step counting algorithm */ 
   initAlgo();
 
@@ -85,6 +88,7 @@ int main(int argc, FAR char *argv[])
   lastAccelSample[0] = data.accel.x;
   lastAccelSample[1] = data.accel.y;
   lastAccelSample[2] = data.accel.z;
+  prev_time_counter = data.sensor_time;
       
   /* Start reading data */
   prev = 0;
@@ -104,26 +108,29 @@ int main(int argc, FAR char *argv[])
     lastAccelSample[1] = data.accel.y;
     lastAccelSample[2] = data.accel.z;
 
-    /* Convert µs to ms. */
-    uint32_t timestamp_ms = data.sensor_time / 1000;
-
-    /* Process sample with timestamp and accel data. */ 
-    processSample(timestamp_ms, accelVals[0], accelVals[1], accelVals[2]);
-
     /* If sensing time has been changed, show 6 axis data. */
 
     if (prev != data.sensor_time)
     {
-      printf("[%" PRIu32 "] %d, %d, %d / %d, %d, %d\n",
-              data.sensor_time,
-              data.gyro.x, data.gyro.y, data.gyro.z,
+      float time_scale = 39.0625 / 1000.0;
+      float time_ms = (data.sensor_time - prev_time_counter) * time_scale;
+
+      /* Convert µs to ms. */
+      time_accel_t timestamp_ms = time_ms;
+
+      /* Process sample with timestamp and accel data. */ 
+      processSample(timestamp_ms, accelVals[0], accelVals[1], accelVals[2]);
+
+      printf("[%" PRIu32 " / [%" PRIu32 "] %d, %d, %d\n",
+              data.sensor_time, timestamp_ms,
               data.accel.x, data.accel.y, data.accel.z);
       printf("[Temperature] %d C\n", data.sensor_temp);
       fflush(stdout);
-      prev = data.sensor_time;   
+      prev = data.sensor_time;
     }
 
     printf("Step count: %d\n", getSteps());
+    fflush(stdout);
   }
 
   close(fd_bmi085);
