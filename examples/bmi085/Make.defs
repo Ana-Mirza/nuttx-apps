@@ -19,5 +19,5 @@
 ############################################################################
 
 ifneq ($(CONFIG_EXAMPLES_BMI085),)
-CONFIGURED_APPS += $(APPDIR)/examples/bmi085
+CONFIGURED_APPS += examples/bmi085
 endif
