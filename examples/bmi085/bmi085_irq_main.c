@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/bmi085/bmi085_main.c
+ * apps/examples/bmi085/bmi085_irq_main.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -52,53 +52,56 @@
 
 int main(int argc, FAR char *argv[])
 {
-  int fd_bmi085;
-  int loop = LOOP;
-  struct accel_gyro_st_s data;
-  uint32_t prev;
+	int fd_bmi085;
+	int loop = LOOP;
+	struct accel_gyro_st_s data;
+	uint32_t prev;
 
-  /* Check input */
-  if (argc >= 2)
-    loop = atoi(argv[1]);
+	/* Check input */
+	if (argc >= 2)
+		loop = atoi(argv[1]);
 
-  printf("Usage: test_bmi085 <number_of_samples>\n");
+	printf("Usage: test_bmi085 <number_of_irq_samples>\n");
 
-  fd_bmi085 = open(BMI085_DEVPATH, O_RDONLY);
-  if (fd_bmi085 < 0)
-    {
-      printf("Device %s open failure. %d\n\n", BMI085_DEVPATH, fd_bmi085);
-      return -1;
-    }
+	fd_bmi085 = open(BMI085_DEVPATH, O_RDONLY);
+	if (fd_bmi085 < 0)
+		{
+			printf("Device %s open failure. %d\n\n", BMI085_DEVPATH, fd_bmi085);
+			return -1;
+		}
 
-  /* Start reading data */
-  prev = 0;
-  while(loop--) {
-    int ret;
+	/* Enable interrupts */
+	int ret = ioctl(fd_bmi085, SNIOC_ENABLEIRQ, (unsigned long)true);
+	if (ret < 0)
+		{
+			printf("Device set interrupt data buffer failed.\n");
+			return -1;
+		}
 
-    ret = read(fd_bmi085, &data, sizeof(struct accel_gyro_st_s));
-    if (ret != sizeof(struct accel_gyro_st_s))
-      {
-        fprintf(stderr, "Read failed.\n");
-        break;
-      }
+	/* Start reading data */
+	prev = 0;
+	while(loop--) { 
+		int ret;
+		int status;
 
-    /* If sensing time has been changed, show 6 axis data. */
+		/* Interrupt data */
+		ret = read(fd_bmi085, &data, sizeof(struct accel_gyro_st_s));
+		if (ret != sizeof(struct accel_gyro_st_s))
+			{
+				fprintf(stderr, "Read failed.\n");
+				break;
+			}
 
-    if (prev != data.sensor_time)
-    {
-      printf("[%" PRIu32 "] %d, %d, %d / %d, %d, %d\n",
-              data.sensor_time,
-              data.gyro.x, data.gyro.y, data.gyro.z,
-              data.accel.x, data.accel.y, data.accel.z);
-      printf("[Temperature] %d C\n", data.sensor_temp);
-      fflush(stdout);
-      prev = data.sensor_time;   
-    }
+		/* Print data */
+		printf("[%" PRIu32 "] %d, %d, %d\n",
+									data.sensor_time,
+									data.accel.x, data.accel.y, data.accel.z);
+		fflush(stdout);
 
-    up_mdelay(50);
-  }
+		up_mdelay(50);
+	}
 
-  close(fd_bmi085);
+	close(fd_bmi085);
 
-  return 0;
+	return 0;
 }

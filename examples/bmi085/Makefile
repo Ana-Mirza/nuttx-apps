@@ -29,6 +29,10 @@ MODULE    = $(CONFIG_EXAMPLES_BMI085)
 
 # bmi085 Example
 
+ifeq ($(EXAMPLES_BMI085_IRQ),n)
 MAINSRC = bmi085_main.c
+else
+MAINSRC = bmi085_irq_main.c
+endif
 
 include $(APPDIR)/Application.mk

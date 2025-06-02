@@ -12,6 +12,13 @@ config EXAMPLES_BMI085
 
 if EXAMPLES_BMI085
 
+config EXAMPLES_BMI085_IRQ
+	bool "BMI085 sensor interrupt example"
+	default n
+	---help---
+		Enables Work with the interrupts enabled.
+		If not set, the Character Device is used by default.
+
 config EXAMPLES_BMI085_PROGNAME
 	string "Program name"
 	default "test_bmi085"

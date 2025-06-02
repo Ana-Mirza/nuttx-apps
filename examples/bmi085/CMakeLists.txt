@@ -19,6 +19,11 @@
 # ##############################################################################
 
 if(CONFIG_EXAMPLES_BMI085)
+  if(EXAMPLES_BMI085_IRQ)
+    set(CSRC bmi085_irq_main.c)
+  else()
+    set(CSRC bmi085_main.c)
+  endif()
   nuttx_add_application(
     NAME
     ${CONFIG_EXAMPLES_BMI085_PROGNAME}
@@ -29,5 +34,5 @@ if(CONFIG_EXAMPLES_BMI085)
     MODULE
     ${CONFIG_EXAMPLES_BMI085}
     SRCS
-    bmi085_main.c)
+    ${CSRC})
 endif()
