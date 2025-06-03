@@ -54,7 +54,7 @@ int main(int argc, FAR char *argv[])
 {
 	int fd_bmi085;
 	int loop = LOOP;
-	struct accel_gyro_st_s data;
+	struct accel_gyro_st_s *data;
 	uint32_t prev;
 
 	/* Check input */
@@ -78,24 +78,26 @@ int main(int argc, FAR char *argv[])
 			return -1;
 		}
 
+	/* Set interrupt data buffer */
+	ret = ioctl(fd_bmi085, SNIOC_DATAIRQ, &data);
+	if (ret < 0)
+		{
+			printf("Device set interrupt data buffer failed.\n");
+			return -1;
+		}
+
+	printf("data addr = %p\n", data);
+
 	/* Start reading data */
 	prev = 0;
 	while(loop--) { 
 		int ret;
 		int status;
 
-		/* Interrupt data */
-		ret = read(fd_bmi085, &data, sizeof(struct accel_gyro_st_s));
-		if (ret != sizeof(struct accel_gyro_st_s))
-			{
-				fprintf(stderr, "Read failed.\n");
-				break;
-			}
-
 		/* Print data */
 		printf("[%" PRIu32 "] %d, %d, %d\n",
-									data.sensor_time,
-									data.accel.x, data.accel.y, data.accel.z);
+									data->sensor_time,
+									data->accel.x, data->accel.y, data->accel.z);
 		fflush(stdout);
 
 		up_mdelay(50);
