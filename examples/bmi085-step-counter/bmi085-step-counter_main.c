@@ -86,11 +86,14 @@
         return -1;
       }
       
-    lastAccelSample[0] = data.accel.x;
-    lastAccelSample[1] = data.accel.y;
-    lastAccelSample[2] = data.accel.z;
+    // lastAccelSample[0] = data.accel.x;
+    // lastAccelSample[1] = data.accel.y;
+    // lastAccelSample[2] = data.accel.z;
     prev_time_counter = data.sensor_time;
     prev = data.sensor_time;
+
+    printf("[%" PRIu32 "] %d, %d, %d\n", 0,
+          data.accel.x, data.accel.y, data.accel.z);
         
     /* Start reading data */
     prev = 0;
@@ -105,13 +108,21 @@
         }
 
       if (prev != data.sensor_time) {
-        accelVals[0] = (int16_t)(lastAccelSample[0] - data.accel.x);
-        accelVals[1] = (int16_t)(lastAccelSample[1] - data.accel.y);
-        accelVals[2] = (int16_t)(lastAccelSample[2] - data.accel.z);
-        lastAccelSample[0] = data.accel.x;
-        lastAccelSample[1] = data.accel.y;
-        lastAccelSample[2] = data.accel.z;
-        float time_ms = (data.sensor_time - prev_time_counter) * time_scale;
+        // accelVals[0] = (int16_t)(lastAccelSample[0] - data.accel.x);
+        // accelVals[1] = (int16_t)(lastAccelSample[1] - data.accel.y);
+        // accelVals[2] = (int16_t)(lastAccelSample[2] - data.accel.z);
+        // lastAccelSample[0] = data.accel.x;
+        // lastAccelSample[1] = data.accel.y;
+        // lastAccelSample[2] = data.accel.z;
+
+        /* Wraparound logic */
+        uint32_t dt_ticks;
+        if (data.sensor_time >= prev_time_counter) {
+            dt_ticks = data.sensor_time - prev_time_counter;
+        } else {
+            dt_ticks = (0xFFFFFF - prev_time_counter + 1) + data.sensor_time;
+        }
+        double time_ms = dt_ticks * time_scale;
 
         /* Convert µs to ms. */
         time_accel_t timestamp_ms = time_ms;
@@ -119,6 +130,8 @@
         /* Print data */
         printf("[%" PRIu32 "] %d, %d, %d\n", timestamp_ms,
           data.accel.x, data.accel.y, data.accel.z);
+        // printf("[%" PRIu32 "] %d, %d, %d\n", timestamp_ms,
+        //   accelVals[0], accelVals[1], accelVals[1]);
 
         /* Process sample with timestamp and accel data. */ 
         // processSample(timestamp_ms, accelVals[0], accelVals[1], accelVals[2]);
